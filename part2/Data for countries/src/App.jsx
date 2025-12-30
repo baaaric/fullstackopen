@@ -1,9 +1,29 @@
 import { useEffect, useMemo, useState } from 'react'
 import countriesService from './services/countries'
+import axios from 'axios'
 
 const CountryDetails = ({ country }) => {
-  const languages = country.languages ? Object.values(country.languages) : []
+  const [weather, setWeather] = useState(null)
+  const apiKey = import.meta.env.VITE_WEATHER_KEY
+  console.log(apiKey)
+  const capital = country.capital?.[0]
 
+  useEffect(() => {
+    if (!capital) return
+
+    axios
+      .get("https://api.openweathermap.org/data/2.5/weather", {
+        params: {
+          q: capital,
+          appid: apiKey,
+          units: "metric"
+        }
+      })
+      .then(res => setWeather(res.data))
+  }, [capital, apiKey])
+  
+  const languages = country.languages ? Object.values(country.languages) : []
+  
   return (
     <div>
       <h2>{country.name.common}</h2>
@@ -23,9 +43,22 @@ const CountryDetails = ({ country }) => {
         alt={country.flags?.alt ?? `Flag of ${country.name.common}`}
         width="160"
       />
+       <h3>Weather in {capital}</h3>
+
+      {weather && (
+        <div>
+          <div>temperature {weather.main.temp} °C</div>
+          <img
+            src={`https://openweathermap.org/img/wn/${weather.weather[0].icon}@2x.png`}
+            alt="weather icon"
+          />
+          <div>wind {weather.wind.speed} m/s</div>
+        </div>
+      )}
     </div>
   )
 }
+
 
 const App = () => {
   const [query, setQuery] = useState('')
@@ -77,23 +110,7 @@ const App = () => {
           }}
         />
       </div>
-
-      {query.trim() === '' ? null : matches.length > 10 ? (
-        <div>Too many matches, specify another filter</div>
-      ) : matches.length > 1 ? (
-        <ul>
-          {matches.map(c => (
-            <li key={c.cca3}>
-              {c.name.common}
-              <button onClick={() => setSelectedCountry(c)}>show</button>
-            </li>
-          ))}
-        </ul>
-      ) : matches.length === 1 ? (
-        <CountryDetails country={matches[0]} />
-      ) : (
-        <div>No matches</div>
-      )}
+      {query.trim() === '' ? null : content}
     </div>
   )
 }
