@@ -47,18 +47,17 @@ const CountryDetails = ({ country }) => {
 
       {weather && (
         <div>
-          <div>temperature {weather.main.temp} °C</div>
+          <div>Temperature {weather.main.temp} °C</div>
           <img
             src={`https://openweathermap.org/img/wn/${weather.weather[0].icon}@2x.png`}
             alt="weather icon"
           />
-          <div>wind {weather.wind.speed} m/s</div>
+          <div>Wind {weather.wind.speed} m/s</div>
         </div>
       )}
     </div>
   )
 }
-
 
 const App = () => {
   const [query, setQuery] = useState('')
@@ -89,7 +88,7 @@ const App = () => {
         {matches.map(c => (
           <li key={c.cca3}>
             {c.name.common}
-            <button onClick={() => setSelectedCountry(c)}>show</button>
+            <button onClick={() => setSelectedCountry(c)}>Show</button>
           </li>
         ))}
       </ul>
